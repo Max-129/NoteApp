@@ -8,12 +8,16 @@ interface NoteDao {
 
 //    CRUD
 
-    fun createNote(noteEntity: NoteEntity)
+    @Insert
+    suspend fun createNote(noteEntity: NoteEntity)
 
-    fun getAllNotes(): List<NoteEntity>
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotes(): List<NoteEntity>
 
-    fun editNote(noteEntity: NoteEntity)
+    @Update
+    suspend fun editNote(noteEntity: NoteEntity)
 
-    fun removeNote(noteEntity: NoteEntity)
+    @Delete
+    suspend fun removeNote(noteEntity: NoteEntity)
 
 }

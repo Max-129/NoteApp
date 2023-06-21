@@ -1,82 +1,30 @@
 package com.example.a6monthlesson1.presentation.ui.fragments.addeditnote
 
-import androidx.lifecycle.ViewModel
+import com.example.a6monthlesson1.data.base.BaseViewModel
+import com.example.a6monthlesson1.domain.model.Note
+import com.example.a6monthlesson1.domain.usecase.CreateNoteUseCase
+import com.example.a6monthlesson1.domain.usecase.EditNoteUseCase
+import com.example.a6monthlesson1.presentation.utils.UIState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-@AndroidEntryPoint
-class CreateEditFragment : Fragment() {
+@HiltViewModel
+class CreateEditViewModel @Inject constructor(
+    private val editNoteUseCase: EditNoteUseCase, private val createNoteUseCase: CreateNoteUseCase
+) : BaseViewModel() {
+    private val _editNoteState = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val editNoteState = _editNoteState.asStateFlow()
 
-    private lateinit var binding: FragmentCreateEditBinding
-    private val viewModel by viewModels<CreateEditViewModel>()
+    private val _createNoteState = MutableStateFlow<UIState<Unit>>(UIState.Empty())
+    val createNoteState = _createNoteState.asStateFlow()
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentCreateEditBinding.inflate(inflater, container, false)
-        return binding.root
+    fun editNote(note: Note) {
+        editNoteUseCase.editNote(note).collectData(_editNoteState)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initClickers()
-
+    fun createNote(note: Note) {
+        createNoteUseCase.create(note).collectData(_createNoteState)
     }
-
-    private fun initClickers() {
-        binding.createEditBtn.setOnClickListener{
-            createNote(Note(title = binding.titleEt.text.toString(), desc = binding.descEt.text.toString()))
-            //editNote()
-        }
-    }
-
-    private fun createNote(note: Note) {
-        viewModel.createNote(note)
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.createNoteState.collect { state ->
-                    when (state) {
-                        is UIState.Empty -> {}
-                        is UIState.Error -> {
-                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                        is UIState.Loading -> {
-                            //show progress bar
-                        }
-
-                        is UIState.Success -> {
-                            //add note to list
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-    private fun editNote(note: Note) {
-        viewModel.editNote(note)
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.editNoteState.collect { state ->
-                    when (state) {
-                        is UIState.Empty -> {}
-                        is UIState.Error -> {
-                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                        is UIState.Loading -> {
-                            //show progress bar
-                        }
-
-                        is UIState.Success -> {
-                            //edit note
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 }
