@@ -8,6 +8,6 @@ class CreateNoteUseCase @Inject constructor(
     private val noteRepository: NoteRepository
 ) {
 
-    fun removeNote(note: Note) = noteRepository.removeNote(note)
+    fun create(note: Note) = noteRepository.createNote(note)
 
 }
